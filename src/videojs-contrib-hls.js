@@ -204,38 +204,6 @@ Hls.canPlaySource = function() {
 };
 
 /**
- * Whether the browser has built-in HLS support.
- */
-Hls.supportsNativeHls = (function() {
-  let video = document.createElement('video');
-
-  // native HLS is definitely not supported if HTML5 video isn't
-  if (!videojs.getComponent('Html5').isSupported()) {
-    return false;
-  }
-
-  // HLS manifests can go by many mime-types
-  let canPlay = [
-    // Apple santioned
-    'application/vnd.apple.mpegurl',
-    // Apple sanctioned for backwards compatibility
-    'audio/mpegurl',
-    // Very common
-    'audio/x-mpegurl',
-    // Very common
-    'application/x-mpegurl',
-    // Included for completeness
-    'video/x-mpegurl',
-    'video/mpegurl',
-    'application/mpegurl'
-  ];
-
-  return canPlay.some(function(canItPlay) {
-    return (/maybe|probably/i).test(video.canPlayType(canItPlay));
-  });
-}());
-
-/**
  * HLS is a source handler, not a tech. Make sure attempts to use it
  * as one do not cause exceptions.
  */
@@ -646,10 +614,6 @@ Hls.comparePlaylistResolution = function(left, right) {
 HlsSourceHandler.canPlayType = function(type) {
   let mpegurlRE = /^(audio|video|application)\/(x-|vnd\.apple\.)?mpegurl/i;
 
-  // favor native HLS support if it's available
-  if (Hls.supportsNativeHls) {
-    return false;
-  }
   return mpegurlRE.test(type);
 };
 
@@ -661,7 +625,7 @@ if (typeof videojs.MediaSource === 'undefined' ||
 
 // register source handlers with the appropriate techs
 if (MediaSource.supportsNativeMediaSources()) {
-  videojs.getComponent('Html5').registerSourceHandler(HlsSourceHandler('html5'));
+  videojs.getComponent('Html5').registerSourceHandler(HlsSourceHandler('html5'), 0);
 }
 if (window.Uint8Array) {
   videojs.getComponent('Flash').registerSourceHandler(HlsSourceHandler('flash'));
